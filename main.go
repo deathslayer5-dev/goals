@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 )
 
 type Goals struct {
@@ -13,20 +14,20 @@ type Goals struct {
 }
 
 func main() {
+	directory := "/home/deathslayer/goals/goal_list/"
 	scanner := bufio.NewScanner(os.Stdin)
 	var Time string
-	if scanner.Scan() {
-		Time = scanner.Text()
+	if len(os.Args) <= 1 {
+		Time = time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day()+1, 0, 0, 0, 0, time.Local).Format("02-01-2006")
 	} else {
-		fmt.Println("No time provided")
-		return
+		Time = os.Args[1]
 	}
 	output := make([]string, 0)
 	goals := Goals{
 		Time,
 		output,
 	}
-	fileName := fmt.Sprintf("goals_%s.txt", goals.time)
+	fileName := fmt.Sprintf("%sgoals_%s.txt", directory, goals.time)
 	head := fmt.Sprintf("Goals for: %v\n", Time)
 	fmt.Println(head)
 	fmt.Println("Input ? to exit")
