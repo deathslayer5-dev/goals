@@ -1,0 +1,81 @@
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"strings"
+)
+
+type Goals struct {
+	time    string
+	content []string
+}
+
+func main() {
+	scanner := bufio.NewScanner(os.Stdin)
+	var Time string
+	if scanner.Scan() {
+		Time = scanner.Text()
+	} else {
+		fmt.Println("No time provided")
+		return
+	}
+	output := make([]string, 0)
+	goals := Goals{
+		Time,
+		output,
+	}
+	fileName := fmt.Sprintf("goals_%s.txt", goals.time)
+	head := fmt.Sprintf("Goals for: %v\n", Time)
+	fmt.Println(head)
+	fmt.Println("Input ? to exit")
+	output = append(output, head)
+	goalCount := 0
+	for {
+		fmt.Print("Enter goal: ")
+		if scanner.Scan() {
+			input := scanner.Text()
+			switch input {
+			case "?":
+				fmt.Println("? pressed, exiting ...")
+				goals.content = output
+				content := strings.Join(goals.content, "\n")
+				fmt.Println(content)
+				err := os.WriteFile(fileName, []byte(content), 0644)
+				if err != nil {
+					fmt.Println(err)
+				} else {
+					fmt.Println("Goals saved to ", fileName)
+				}
+				return
+			case "?g":
+				fmt.Println("Current Goals:", goalCount)
+				content := strings.Join(output, "\n")
+				fmt.Println(content)
+			case "?d":
+				fmt.Println("Deleting last goal")
+				goalCount--
+				if goalCount <= 0 {
+					goalCount = 0
+					output = []string{head}
+				}
+				output = output[:goalCount]
+				content := strings.Join(output, "\n")
+				fmt.Println(content)
+			default:
+				goalCount++
+				goal := fmt.Sprintf("%d: %s", goalCount, input)
+				output = append(output, goal)
+			}
+
+		}
+		if err := scanner.Err(); err != nil {
+			_, err := fmt.Fprintln(os.Stderr, "reading standard input:", err)
+			if err != nil {
+				return
+			}
+		}
+	}
+
+}
